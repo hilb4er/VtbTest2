@@ -1,36 +1,31 @@
 package api_test;
 
-
 import static io.restassured.RestAssured.get;
 
-import groovy.json.JsonParser;
-import io.restassured.response.Response;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.testng.Assert;
 import org.junit.Test;
 
-import java.io.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class api {
 
     @Test()
-    public void getTest() throws JSONException, IOException {
-        Response response = get("http://kn-ktapp.herokuapp.com/apitest/accounts/12345678");
-        JSONObject jsonResponse = new JSONObject(response.asString());
-        HashMap<String,String> obj = new HashMap<String, String>();
-        obj.put(jsonResponse.getString("closing_date"), "closing_date");
-        //вот тут нужно использовать readObject для десериализации
-        //не понятно как передать в ObjectInputStream не данные файла,а данные из запроса Get
-      //  ObjectInputStream in = new ObjectInputStream(jsonResponse.);
+    public void getTest() throws JSONException {
+        dtoAccounts accounts = get("http://kn-ktapp.herokuapp.com/apitest/accounts/12345678")
+                .as(dtoAccounts.class);
+        Assert.assertNotNull(accounts.getAccount_id(), "ID аккаунта пустое");
+        System.out.println(accounts.getAccount_id());
+    }
 
-        String closing_date = String.valueOf(jsonResponse.getString("account_id"));
-        System.out.println(closing_date);
-      //  Assert.assertEquals(capital, "Moscow");
+    @Test
+    public void getAccountsTest () {
+        List<dtoAccounts> accounts = Arrays.asList((get("http://kn-ktapp.herokuapp.com/apitest/accounts")
+                .as(dtoAccounts[].class)));
+        for (int i = 0 ; i < accounts.size(); i++) {
+            Assert.assertNotNull(accounts.get(i).account_id, "ID аккаунта пустое");
+            System.out.println(accounts.get(i).account_id);
+        }
     }
 
 }
